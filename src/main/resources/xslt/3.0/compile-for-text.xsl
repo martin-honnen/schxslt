@@ -4,8 +4,11 @@
                xmlns:sch="http://purl.oclc.org/dsdl/schematron"
                xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494"
                xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
+               xmlns:mf="http://example.com/mf"
                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+  <xsl:import href="streaming-utilities/position-accumulator.xsl"/>
 
   <xsl:import href="compile/compile-3.0.xsl"/>
 
@@ -13,14 +16,14 @@
 
   <xsl:template name="schxslt-api:failed-assert">
     <xsl:param name="assert" as="element(sch:assert)" required="yes"/>
-    <xsl:text expand-text="yes">Assert {@id} with test {@test} failed: </xsl:text>
+    <xsl:text expand-text="yes">Assert {@id} with test {@test} failed </xsl:text> <runtime:text expand-text="yes">{mf:path(.)}:</runtime:text>
     <xsl:apply-templates/>
     <xsl:text>&#10;</xsl:text>
   </xsl:template>
 
   <xsl:template name="schxslt-api:successful-report">
     <xsl:param name="report" as="element(sch:report)" required="yes"/>
-    <xsl:text expand-text="yes">Report {@id} with test {@test} successful {mf:path(.)}: </xsl:text>
+    <xsl:text expand-text="yes">Report {@id} with test {@test} successful </xsl:text> <runtime:text expand-text="yes">{mf:path(.)}:</runtime:text>
     <xsl:apply-templates/>
     <xsl:text>&#10;</xsl:text>
   </xsl:template>
@@ -33,15 +36,10 @@
     
   </xsl:template>
 
-  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
-    <desc>
-      <p>Create top part of the validation stylesheet</p>
-    </desc>
-    <param name="schema">Schematron schema</param>
-  </doc>
   <xsl:template name="schxslt-api:validation-stylesheet-body-top-hook">
     <xsl:param name="schema" as="element(sch:schema)" required="yes"/>
-    <runtime:import href="streaming-utilities/position-accumulator.xsl"/>
+    <runtime:import href="{resolve-uri(static-base-uri(), 'streaming-utilities/position-accumulators.xsl')}"/>
+    <runtime:mode use-accumulators="position"/>
   </xsl:template>
 
 </xsl:transform>
