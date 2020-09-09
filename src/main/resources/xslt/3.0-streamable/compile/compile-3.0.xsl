@@ -171,8 +171,10 @@
       <xsl:call-template name="schxslt:let-variable">
         <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
       </xsl:call-template>
-      
-      <apply-templates select="{@burst}()" mode="{$mode}-grounded"/>
+
+      <apply-templates select="{@burst}()" mode="{$mode}-grounded">
+        <with-param name="schxslt:rules" select="$schxslt:rules"/>
+      </apply-templates>
     </template>
 
   </xsl:template>
