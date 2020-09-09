@@ -58,7 +58,7 @@
 
       <output indent="yes"/>
       
-      <mode streamable="yes"/>
+      <mode streamable="yes" use-accumulators="position"/>
       
       <xsl:sequence select="$schematron/xsl:key[not(preceding-sibling::sch:pattern)]"/>
       <xsl:sequence select="$schematron/xsl:function[not(preceding-sibling::sch:pattern)]"/>
@@ -280,8 +280,8 @@
       <xsl:variable name="mode" as="xs:string" select="generate-id()"/>
       <xsl:variable name="baseUri" as="xs:anyURI" select="base-uri(.)"/>
 
-      <mode name="{$mode}" streamable="yes"/>
-      <mode name="{$mode}-entry" streamable="yes"/>
+      <mode name="{$mode}" streamable="yes" use-accumulators="position"/>
+      <mode name="{$mode}-entry" streamable="yes" use-accumulators="position"/>
 
       <template match="/" mode="{$mode}-entry">
         <xsl:sequence select="@xml:base"/>
