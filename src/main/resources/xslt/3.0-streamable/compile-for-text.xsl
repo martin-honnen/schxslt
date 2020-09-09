@@ -38,7 +38,7 @@
 
   <xsl:template name="schxslt-api:validation-stylesheet-body-top-hook">
     <xsl:param name="schema" as="element(sch:schema)" required="yes"/>
-    <runtime:import href="{resolve-uri(static-base-uri(), 'streaming-utilities/position-accumulators.xsl')}"/>
+    <runtime:import href="{resolve-uri('streaming-utilities/position-accumulator.xsl', static-base-uri())}"/>
     <runtime:mode use-accumulators="position"/>
   </xsl:template>
 
