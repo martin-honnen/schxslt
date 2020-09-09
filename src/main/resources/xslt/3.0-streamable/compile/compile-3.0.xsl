@@ -290,7 +290,7 @@
           <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
         </xsl:call-template>
 
-        <variable name="documents" as="item()+">
+        <!--<variable name="documents" as="item()+">
           <xsl:choose>
             <xsl:when test="@documents">
               <for-each select="{@documents}">
@@ -301,9 +301,9 @@
               <sequence select="/"/>
             </xsl:otherwise>
           </xsl:choose>
-        </variable>
+        </variable>-->
 
-        <for-each select="$documents">
+        <!--<for-each select="$documents">-->
           <xsl:for-each select="current-group()">
             <schxslt:pattern id="{generate-id()}@{{base-uri(.)}}">
               <xsl:call-template name="schxslt-api:active-pattern">
@@ -313,7 +313,7 @@
           </xsl:for-each>
 
           <apply-templates mode="{$mode}" select="."/>
-        </for-each>
+        <!--</for-each>-->
 
       </template>
 
