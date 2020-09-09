@@ -106,7 +106,7 @@
 
   <xsl:template name="schxslt-api:validation-stylesheet-body-top-hook">
     <xsl:param name="schema" as="element(sch:schema)" required="yes"/>
-    <import href="{resolve-uri(static-base-uri(), 'streaming-utilities/position-accumulators.xsl')}"/>
+    <import href="{resolve-uri('streaming-utilities/position-accumulator.xsl', static-base-uri())}"/>
     <mode use-accumulators="position"/>
   </xsl:template>
 
