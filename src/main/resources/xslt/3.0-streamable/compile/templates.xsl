@@ -10,7 +10,8 @@
 
   <!-- Match templates -->
   <xsl:template match="sch:assert">
-    <if test="not({@test})">
+    <xsl:param name="burst"/>
+    <if test="{if ($burst) then $burst || '!(not(' || @test || '))' else 'not(' || @test || ')'}">
       <xsl:sequence select="@xml:base"/>
       <xsl:call-template name="schxslt-api:failed-assert">
         <xsl:with-param name="assert" as="element(sch:assert)" select="."/>
@@ -19,7 +20,8 @@
   </xsl:template>
 
   <xsl:template match="sch:report">
-    <if test="{@test}">
+    <xsl:param name="burst"/>
+    <if test="{if ($burst) then $burst || '!(' || @test || ')' else @test}">
       <xsl:sequence select="@xml:base"/>
       <xsl:call-template name="schxslt-api:successful-report">
         <xsl:with-param name="report" as="element(sch:report)" select="."/>

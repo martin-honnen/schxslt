@@ -134,58 +134,13 @@
 
   </xsl:template>
 
-  <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
+    <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc>
       <p>Return rule template</p>
     </desc>
     <param name="mode">Template mode</param>
   </doc>
-  <xsl:template match="sch:rule[not(@burst)]">
-    <xsl:param name="mode" as="xs:string" required="yes"/>
-
-    <xsl:apply-templates select="." mode="create-template-mode">
-      <xsl:with-param name="mode" select="$mode"/>
-    </xsl:apply-templates>
-    
-    <xsl:apply-templates select="." mode="create-template-mode">
-      <xsl:with-param name="mode" select="$mode || '-grounded'"/>
-    </xsl:apply-templates>
-
-    <xsl:call-template name="schxslt:check-multiply-defined">
-      <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
-    </xsl:call-template>
-
-  </xsl:template>
-
-  <xsl:template match="sch:rule[@burst]">
-    <xsl:param name="mode" as="xs:string" required="yes"/>
-    
-    <xsl:call-template name="schxslt:check-multiply-defined">
-      <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
-    </xsl:call-template>
-    
-    <xsl:apply-templates select="." mode="create-template-mode-switch">
-      <xsl:with-param name="mode" select="$mode || '-grounded'"/>
-    </xsl:apply-templates>
-    
-    <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
-      <xsl:sequence select="(@xml:base, ../@xml:base)"/>
-
-      <!-- Check if a context node was already matched by a rule of the current pattern. -->
-      <param name="schxslt:rules" as="element(schxslt:rule)*"/>
-
-      <xsl:call-template name="schxslt:let-variable">
-        <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
-      </xsl:call-template>
-
-      <apply-templates select="accumulator-after('{@context}')" mode="{$mode}-grounded">
-        <with-param name="schxslt:rules" select="$schxslt:rules"/>
-      </apply-templates>
-    </template>
-
-  </xsl:template>
-
-  <xsl:template match="sch:rule" mode="create-template-mode">
+  <xsl:template match="sch:rule">
     <xsl:param name="mode" as="xs:string" required="yes"/>
 
     <xsl:call-template name="schxslt:check-multiply-defined">
@@ -208,7 +163,9 @@
             <xsl:call-template name="schxslt-api:fired-rule">
               <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
             </xsl:call-template>
-            <xsl:apply-templates select="sch:assert | sch:report"/>
+            <xsl:apply-templates select="sch:assert | sch:report">
+              <xsl:with-param name="burst" select="if (@burst) then 'accumulator-before(''' || @context || ''')' else ()"/>
+            </xsl:apply-templates>
           </schxslt:rule>
         </when>
         <otherwise>
@@ -223,57 +180,13 @@
       <next-match>
         <with-param name="schxslt:rules" as="element(schxslt:rule)*">
           <sequence select="$schxslt:rules"/>
-          <schxslt:rule context="{{generate-id()}}" pattern="{generate-id(..)}"/>
+          <schxslt:rule context="{{generate-id(accumulator-before('{@context}'))}}" pattern="{generate-id(..)}"/>
         </with-param>
       </next-match>
     </template>
 
   </xsl:template>
-  
- <xsl:template match="sch:rule" mode="create-template-mode-switch">
-    <xsl:param name="mode" as="xs:string" required="yes"/>
 
-    <xsl:call-template name="schxslt:check-multiply-defined">
-      <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
-    </xsl:call-template>
-
-    <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
-      <xsl:sequence select="(@xml:base, ../@xml:base)"/>
-
-      <!-- Check if a context node was already matched by a rule of the current pattern. -->
-      <param name="schxslt:rules" as="element(schxslt:rule)*"/>
-
-      <xsl:call-template name="schxslt:let-variable">
-        <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
-      </xsl:call-template>
-
-      <choose>
-        <when test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = generate-id(current())])">
-          <schxslt:rule pattern="{generate-id(..)}@{{base-uri(.)}}">
-            <xsl:call-template name="schxslt-api:fired-rule">
-              <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
-            </xsl:call-template>
-            <xsl:apply-templates select="sch:assert | sch:report"/>
-          </schxslt:rule>
-        </when>
-        <otherwise>
-          <schxslt:rule pattern="{generate-id(..)}@{{base-uri(.)}}">
-            <xsl:call-template name="schxslt-api:suppressed-rule">
-              <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
-            </xsl:call-template>
-          </schxslt:rule>
-        </otherwise>
-      </choose>
-
-      <next-match>
-        <with-param name="schxslt:rules" as="element(schxslt:rule)*">
-          <sequence select="$schxslt:rules"/>
-          <schxslt:rule context="{{generate-id()}}" pattern="{generate-id(..)}"/>
-        </with-param>
-      </next-match>
-    </template>
-
-  </xsl:template>
   
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc>
