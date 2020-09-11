@@ -11,8 +11,8 @@
     
     <xsl:mode on-no-match="shallow-copy" streamable="yes" use-accumulators="position"/>
     
-    <xsl:template match="*">
-        <xsl:comment>Position: {mf:position(.)}; path: {mf:path(.)}</xsl:comment>
+    <xsl:template match="node()">
+        <xsl:comment>{mf:node-type(.)}: position: {mf:position(.)}; path: {mf:path(.)}</xsl:comment>
         <xsl:next-match/>
     </xsl:template>
     

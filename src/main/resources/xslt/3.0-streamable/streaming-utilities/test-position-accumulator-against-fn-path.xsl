@@ -15,7 +15,7 @@
         <xsl:variable name="pos" as="xs:integer">
             <xsl:number/>
         </xsl:variable>
-        <xsl:assert test="path() eq '/' || mf:path(.)">{path()} ne {'/' || mf:path(.)}</xsl:assert>
+        <xsl:assert test="path() eq mf:path(.)">{path()} ne {mf:path(.)}</xsl:assert>
         <xsl:next-match/>
     </xsl:template>
     

@@ -11,11 +11,11 @@
     
     <xsl:mode on-no-match="shallow-copy" streamable="no" use-accumulators="position"/>
     
-    <xsl:template match="*">
+    <xsl:template match="node()">
         <xsl:variable name="pos" as="xs:integer">
             <xsl:number/>
         </xsl:variable>
-        <xsl:assert test="$pos eq mf:position(.)">{$pos} ne {mf:position(.)}</xsl:assert>
+        <xsl:assert test="$pos eq mf:position(.)">{$pos} ne {mf:position(.)} {mf:node-type(.)}</xsl:assert>
         <xsl:next-match/>
     </xsl:template>
     
