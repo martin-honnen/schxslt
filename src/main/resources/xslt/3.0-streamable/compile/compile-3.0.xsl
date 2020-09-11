@@ -164,7 +164,7 @@
               <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
             </xsl:call-template>
             <xsl:apply-templates select="sch:assert | sch:report">
-              <xsl:with-param name="burst" select="if (@burst) then 'accumulator-before(''' || @context || ''')' else ()"/>
+              <xsl:with-param name="burst" select="if (@burst) then 'accumulator-after(''' || @context || ''')' else ()"/>
             </xsl:apply-templates>
           </schxslt:rule>
         </when>
@@ -180,7 +180,7 @@
       <next-match>
         <with-param name="schxslt:rules" as="element(schxslt:rule)*">
           <sequence select="$schxslt:rules"/>
-          <schxslt:rule context="{{generate-id(accumulator-before('{@context}'))}}" pattern="{generate-id(..)}"/>
+          <schxslt:rule context="{{generate-id(accumulator-after('{@context}'))}}" pattern="{generate-id(..)}"/>
         </with-param>
       </next-match>
     </template>
