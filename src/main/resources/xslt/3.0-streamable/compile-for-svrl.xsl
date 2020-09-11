@@ -9,7 +9,6 @@
                xmlns:mf="http://example.com/mf"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-  <xsl:import href="streaming-utilities/position-accumulator.xsl"/>
 
   <xsl:import href="compile/compile-3.0.xsl"/>
 
@@ -106,7 +105,7 @@
 
   <xsl:template name="schxslt-api:validation-stylesheet-body-top-hook">
     <xsl:param name="schema" as="element(sch:schema)" required="yes"/>
-    <import href="{resolve-uri('streaming-utilities/position-accumulator.xsl', static-base-uri())}"/>
+    
     <mode use-accumulators="#all"/>
   </xsl:template>
 
@@ -185,7 +184,7 @@
 
   <xsl:function name="schxslt:location" as="xs:string" visibility="public" streamability="inspection">
     <xsl:param name="node" as="node()"/>
-    <xsl:sequence select="$node => mf:path()"/>
+    <xsl:sequence select="$node => generate-id()"/>
   </xsl:function>
 
   <xsl:function name="schxslt:is-location-function" as="xs:boolean">
