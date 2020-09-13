@@ -174,6 +174,7 @@
 
       <apply-templates select="{@burst}()" mode="{$mode}-grounded">
         <with-param name="schxslt:rules" select="$schxslt:rules"/>
+        <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
       </apply-templates>
     </template>
 
@@ -236,13 +237,14 @@
 
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
+      <param name="schxslt:streamed-context"/>
 
       <xsl:call-template name="schxslt:let-variable">
         <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
       </xsl:call-template>
 
       <choose>
-        <when test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = generate-id(current())])">
+        <when test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = $schxslt:streamed-context])">
           <schxslt:rule pattern="{generate-id(..)}@{{base-uri(.)}}">
             <xsl:call-template name="schxslt-api:fired-rule">
               <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
@@ -262,7 +264,7 @@
       <next-match>
         <with-param name="schxslt:rules" as="element(schxslt:rule)*">
           <sequence select="$schxslt:rules"/>
-          <schxslt:rule context="{{generate-id()}}" pattern="{generate-id(..)}"/>
+          <schxslt:rule context="{{$schxslt:streamed-context}}" pattern="{generate-id(..)}"/>
         </with-param>
       </next-match>
     </template>
