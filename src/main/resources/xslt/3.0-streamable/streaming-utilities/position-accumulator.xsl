@@ -9,17 +9,25 @@
     <xsl:function name="mf:path" as="xs:string" streamability="inspection" visibility="public">
         <xsl:param name="node" as="node()"/>
         <xsl:sequence
-            select="$node/ancestor-or-self::node()
+            select="if ($node instance of document-node())
+                    then '/'
+                    else 
+                    $node/ancestor-or-self::node()
                     !(
                        mf:step(.) || 
                        mf:positional-predicate(.)
                      ) => string-join('/')"/>
     </xsl:function>
 
-  <xsl:function name="mf:step" as="xs:string" streamability="inspection" visibility="public">
+  <xsl:function name="mf:step" as="xs:string?" streamability="inspection" visibility="public">
     <xsl:param name="node" as="node()"/>
     <xsl:sequence select="if ($node instance of element())
                           then $node!('Q{' || namespace-uri-from-QName(node-name()) || '}' || local-name())
+                          else if ($node instance of attribute())
+                          then (if (not(namespace-uri($node)))
+                                then '@' || local-name($node)
+                                else $node!('@' || 'Q{' || namespace-uri-from-QName(node-name()) || '}' || local-name())
+                               )
                           else if ($node instance of text())
                           then mf:node-type($node)
                           else if ($node instance of comment())
@@ -31,9 +39,9 @@
                           else error(QName('http://example.com/mf', 'type-error'), 'Unknown node type')"/>
   </xsl:function>
 
-  <xsl:function name="mf:positional-predicate" as="xs:string" streamability="inspection" visibility="public">
+  <xsl:function name="mf:positional-predicate" as="xs:string?" streamability="inspection" visibility="public">
     <xsl:param name="node" as="node()"/>
-    <xsl:sequence select="if ($node instance of document-node())
+    <xsl:sequence select="if ($node instance of document-node() or $node instance of attribute())
                           then ''
                           else $node ! ('[' || mf:position(.) || ']')"/>
   </xsl:function>
