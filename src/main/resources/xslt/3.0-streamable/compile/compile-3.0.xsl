@@ -60,6 +60,13 @@
       
       <mode streamable="yes" use-accumulators="position"/>
       
+      <xsl:for-each select="$schematron//sch:reference">
+        <accumulator name="{@context}" as="node()?" initial-value="()" streamable="yes">
+          <accumulator-rule match="{@context}" select="." phase="end" saxon:capture="yes" xmlns:saxon="http://saxon.sf.net/"/>       
+        </accumulator>
+      </xsl:for-each>
+        
+      
       <xsl:sequence select="$schematron/xsl:key[not(preceding-sibling::sch:pattern)]"/>
       <xsl:sequence select="$schematron/xsl:function[not(preceding-sibling::sch:pattern)]"/>
 
@@ -167,10 +174,10 @@
 
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
-
-      <xsl:call-template name="schxslt:let-variable">
+      
+      <!--<xsl:call-template name="schxslt:let-variable">
         <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
-      </xsl:call-template>
+      </xsl:call-template>-->
 
       <apply-templates select="{@burst}()" mode="{$mode}-grounded">
         <with-param name="schxslt:rules" select="$schxslt:rules"/>
@@ -238,7 +245,12 @@
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
       <param name="schxslt:streamed-context"/>
-
+      
+      <!-- JND add in variable, note select is not contextual -->
+      <xsl:for-each select="//sch:reference">
+        <variable name="{@name}" select="accumulator-after('{@context}')" />
+      </xsl:for-each>
+      
       <xsl:call-template name="schxslt:let-variable">
         <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
       </xsl:call-template>
