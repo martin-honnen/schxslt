@@ -150,11 +150,7 @@
   <!-- handles no streaming rules (default) TODO FIX IT -->
   <xsl:template match="sch:rule[not(@burst) or @burst = 'off']">
     <xsl:param name="mode" as="xs:string" required="yes"/>
-
-    <xsl:apply-templates select="." mode="create-template-mode">
-      <xsl:with-param name="mode" select="$mode"/>
-    </xsl:apply-templates>
-
+ 
     <xsl:apply-templates select="." mode="create-template-mode">
       <xsl:with-param name="mode" select="$mode || '-grounded'"/>
     </xsl:apply-templates>
@@ -209,6 +205,7 @@
           <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
         </apply-templates>
       </template>
+      <!-- TODO need rule for when @burst matches illegal value -->
     </xsl:if>
   </xsl:template>
 
@@ -276,7 +273,7 @@
 
       <!-- if rule is inherited, it must be called from a bursting context -->
       <xsl:if test="$isInherited">
-        <if test="$schxslt:isBursting">          
+        <if test="not($schxslt:isBursting)">          
           <message terminate="yes">Inherited rule is not bursting.</message> 
         </if>
       </xsl:if>
@@ -363,7 +360,13 @@
           </xsl:for-each>
 
           <apply-templates mode="{$mode}" select="."/>
+          
         </for-each>
+        <!-- I don't understand the doc stuff, so putting this here for now -->
+        <!-- move somewhere else so order of fired-rules makes more sense? -->
+        <xsl:for-each select="//sch:reference[@apply-rules='yes']">
+          <apply-templates select="accumulator-after('{@name}')" mode="{$mode}-grounded" />
+        </xsl:for-each>
 
       </template>
 
