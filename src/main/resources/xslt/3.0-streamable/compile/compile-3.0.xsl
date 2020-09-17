@@ -1,12 +1,10 @@
 <!-- Compile preprocessed Schematron to validation stylesheet -->
-<xsl:transform version="2.0"
-               xmlns="http://www.w3.org/1999/XSL/TransformAlias"
-               xmlns:sch="http://purl.oclc.org/dsdl/schematron"
-               xmlns:error="https://doi.org/10.5281/zenodo.1495494#error"
-               xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
-               xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494"
-               xmlns:xs="http://www.w3.org/2001/XMLSchema"
-               xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:transform version="2.0" xmlns="http://www.w3.org/1999/XSL/TransformAlias"
+  xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+  xmlns:error="https://doi.org/10.5281/zenodo.1495494#error"
+  xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
+  xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:import href="api-3.0.xsl"/>
 
@@ -34,10 +32,10 @@
 
   <xsl:template name="schxslt:compile">
     <xsl:param name="schematron" as="element(sch:schema)" required="yes"/>
-
-    <xsl:variable name="effective-phase" select="schxslt:effective-phase($schematron, $phase)" as="xs:string"/>
-    <xsl:variable name="active-patterns" select="schxslt:active-patterns($schematron, $effective-phase)" as="element(sch:pattern)+"/>
-
+    <xsl:variable name="effective-phase" select="schxslt:effective-phase($schematron, $phase)"
+      as="xs:string"/>
+    <xsl:variable name="active-patterns"
+      select="schxslt:active-patterns($schematron, $effective-phase)" as="element(sch:pattern)+"/>
     <xsl:variable name="validation-stylesheet-body">
       <xsl:call-template name="schxslt:validation-stylesheet-body">
         <xsl:with-param name="patterns" as="element(sch:pattern)+" select="$active-patterns"/>
@@ -45,6 +43,7 @@
     </xsl:variable>
 
     <transform version="{schxslt:xslt-version($schematron)}">
+
       <xsl:for-each select="$schematron/sch:ns">
         <xsl:namespace name="{@prefix}" select="@uri"/>
       </xsl:for-each>
@@ -57,21 +56,24 @@
       </xsl:call-template>
 
       <output indent="yes"/>
-      
+      <import-schema namespace="http://itl.nist.gov/ns/voting/1500-103/v1"
+        schema-location="NIST_V0_cast_vote_records.xsd"/>
       <mode streamable="yes" use-accumulators="position"/>
-      
+
       <xsl:for-each select="$schematron//sch:reference">
         <accumulator name="{@context}" as="node()?" initial-value="()" streamable="yes">
-          <accumulator-rule match="{@context}" select="." phase="end" saxon:capture="yes" xmlns:saxon="http://saxon.sf.net/"/>       
+          <accumulator-rule match="{@context}" select="." phase="end" saxon:capture="yes"
+            xmlns:saxon="http://saxon.sf.net/"/>
         </accumulator>
       </xsl:for-each>
-        
-      
+
+
       <xsl:sequence select="$schematron/xsl:key[not(preceding-sibling::sch:pattern)]"/>
       <xsl:sequence select="$schematron/xsl:function[not(preceding-sibling::sch:pattern)]"/>
 
       <!-- See https://github.com/dmj/schxslt/issues/25 -->
-      <xsl:variable name="global-bindings" as="element(sch:let)*" select="($schematron/sch:let, $schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"/>
+      <xsl:variable name="global-bindings" as="element(sch:let)*"
+        select="($schematron/sch:let, $schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"/>
       <xsl:call-template name="schxslt:check-multiply-defined">
         <xsl:with-param name="bindings" select="$global-bindings" as="element(sch:let)*"/>
       </xsl:call-template>
@@ -81,24 +83,28 @@
       </xsl:call-template>
 
       <xsl:call-template name="schxslt:let-variable">
-        <xsl:with-param name="bindings" select="($schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"/>
+        <xsl:with-param name="bindings"
+          select="($schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"
+        />
       </xsl:call-template>
 
       <template match="/">
         <xsl:sequence select="$schematron/sch:phase[@id eq $effective-phase]/@xml:base"/>
 
         <xsl:call-template name="schxslt:let-variable">
-          <xsl:with-param name="bindings" select="$schematron/sch:phase[@id eq $effective-phase]/sch:let"/>
+          <xsl:with-param name="bindings"
+            select="$schematron/sch:phase[@id eq $effective-phase]/sch:let"/>
         </xsl:call-template>
 
         <variable name="report" as="element(schxslt:report)">
           <schxslt:report>
             <fork>
-              <xsl:for-each select="$validation-stylesheet-body/xsl:mode[@name[not(ends-with(., '-entry'))]]">
+              <xsl:for-each
+                select="$validation-stylesheet-body/xsl:mode[@name[not(ends-with(., '-entry'))]]">
                 <sequence>
                   <apply-templates select="." mode="{@name}-entry"/>
                 </sequence>
-              </xsl:for-each>              
+              </xsl:for-each>
             </fork>
           </schxslt:report>
         </variable>
@@ -119,7 +125,7 @@
       </template>
 
       <template match="text() | @*" mode="#all" priority="-10"/>
-      
+
       <template match="*" mode="#all" priority="-10">
         <apply-templates mode="#current" select="@*"/>
         <apply-templates mode="#current"/>
@@ -141,13 +147,30 @@
     </desc>
     <param name="mode">Template mode</param>
   </doc>
-  <xsl:template match="sch:rule[not(@burst)]">
+  <!-- handles no streaming rules (default) TODO FIX IT -->
+  <xsl:template match="sch:rule[not(@burst) or @burst = 'off']">
     <xsl:param name="mode" as="xs:string" required="yes"/>
 
     <xsl:apply-templates select="." mode="create-template-mode">
       <xsl:with-param name="mode" select="$mode"/>
     </xsl:apply-templates>
-    
+
+    <xsl:apply-templates select="." mode="create-template-mode">
+      <xsl:with-param name="mode" select="$mode || '-grounded'"/>
+    </xsl:apply-templates>
+
+    <xsl:call-template name="schxslt:check-multiply-defined">
+      <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
+    </xsl:call-template>
+  </xsl:template>
+  <!-- handles basic streaming -->
+  <xsl:template match="sch:rule[@burst = 'on']">
+    <xsl:param name="mode" as="xs:string" required="yes"/>
+
+    <xsl:apply-templates select="." mode="create-template-mode">
+      <xsl:with-param name="mode" select="$mode"/>
+    </xsl:apply-templates>
+
     <xsl:apply-templates select="." mode="create-template-mode">
       <xsl:with-param name="mode" select="$mode || '-grounded'"/>
     </xsl:apply-templates>
@@ -157,34 +180,36 @@
     </xsl:call-template>
 
   </xsl:template>
-
-  <xsl:template match="sch:rule[@burst]">
+  <!-- handles bursting -->
+  <xsl:template match="sch:rule[@burst = ('copy-of','snapshot','inherit')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
-    
+
     <xsl:call-template name="schxslt:check-multiply-defined">
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
     </xsl:call-template>
-    
+
     <xsl:apply-templates select="." mode="create-template-mode-switch">
       <xsl:with-param name="mode" select="$mode || '-grounded'"/>
+      <xsl:with-param name="isInherited" select="@burst = 'inherit'" />
     </xsl:apply-templates>
-    
-    <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
-      <xsl:sequence select="(@xml:base, ../@xml:base)"/>
+    <xsl:if test="@burst != 'inherit'">
+      <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
+        <xsl:sequence select="(@xml:base, ../@xml:base)"/>
 
-      <!-- Check if a context node was already matched by a rule of the current pattern. -->
-      <param name="schxslt:rules" as="element(schxslt:rule)*"/>
-      
-      <!--<xsl:call-template name="schxslt:let-variable">
-        <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
-      </xsl:call-template>-->
+        <!-- Check if a context node was already matched by a rule of the current pattern. -->
+        <param name="schxslt:rules" as="element(schxslt:rule)*"/>
 
-      <apply-templates select="{@burst}()" mode="{$mode}-grounded">
-        <with-param name="schxslt:rules" select="$schxslt:rules"/>
-        <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
-      </apply-templates>
-    </template>
+        <!--<xsl:call-template name="schxslt:let-variable">
+          <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
+        </xsl:call-template>-->
 
+        <apply-templates select="{@burst}()" mode="{$mode}-grounded">
+          <with-param name="schxslt:isBursting" tunnel="yes" select="true()"/>
+          <with-param name="schxslt:rules" select="$schxslt:rules"/>
+          <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
+        </apply-templates>
+      </template>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="sch:rule" mode="create-template-mode">
@@ -205,7 +230,8 @@
       </xsl:call-template>
 
       <choose>
-        <when test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = generate-id(current())])">
+        <when
+          test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = generate-id(current())])">
           <schxslt:rule pattern="{generate-id(..)}@{{base-uri(.)}}">
             <xsl:call-template name="schxslt-api:fired-rule">
               <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
@@ -231,32 +257,40 @@
     </template>
 
   </xsl:template>
-  
- <xsl:template match="sch:rule" mode="create-template-mode-switch">
-    <xsl:param name="mode" as="xs:string" required="yes"/>
 
+  <xsl:template match="sch:rule" mode="create-template-mode-switch">
+    <xsl:param name="mode" as="xs:string" required="yes"/>
+    <xsl:param name="isInherited" />
+        
     <xsl:call-template name="schxslt:check-multiply-defined">
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
     </xsl:call-template>
 
     <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
+      <param name="schxslt:isBursting" tunnel="yes" as="xs:boolean" />
       <xsl:sequence select="(@xml:base, ../@xml:base)"/>
 
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
       <param name="schxslt:streamed-context"/>
-      
-      <!-- JND add in variable, note select is not contextual -->
+
+      <!-- if rule is inherited, it must be called from a bursting context -->
+      <xsl:if test="$isInherited">
+        <if test="$schxslt:isBursting">          
+          <message terminate="yes">Inherited rule is not bursting.</message> 
+        </if>
+      </xsl:if>
       <xsl:for-each select="//sch:reference">
-        <variable name="{@name}" select="accumulator-after('{@context}')" />
+        <variable name="{@name}" select="accumulator-after('{@context}')"/>
       </xsl:for-each>
-      
+
       <xsl:call-template name="schxslt:let-variable">
         <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
       </xsl:call-template>
 
       <choose>
-        <when test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = $schxslt:streamed-context])">
+        <when
+          test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = $schxslt:streamed-context])">
           <schxslt:rule pattern="{generate-id(..)}@{{base-uri(.)}}">
             <xsl:call-template name="schxslt-api:fired-rule">
               <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
@@ -282,7 +316,7 @@
     </template>
 
   </xsl:template>
-  
+
   <doc xmlns="http://www.oxygenxml.com/ns/doc/xsl">
     <desc>
       <p>Return body of validation stylesheet</p>
