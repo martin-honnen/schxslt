@@ -165,11 +165,7 @@
 
     <xsl:apply-templates select="." mode="create-template-mode">
       <xsl:with-param name="mode" select="$mode"/>
-    </xsl:apply-templates>
-
-    <xsl:apply-templates select="." mode="create-template-mode">
-      <xsl:with-param name="mode" select="$mode || '-grounded'"/>
-    </xsl:apply-templates>
+    </xsl:apply-templates>    
 
     <xsl:call-template name="schxslt:check-multiply-defined">
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
