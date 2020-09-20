@@ -148,7 +148,7 @@
     <param name="mode">Template mode</param>
   </doc>
   <!-- handles no streaming rules (default) TODO FIX IT -->
-  <xsl:template match="sch:rule[not(@burst) or @burst = 'off']">
+  <xsl:template match="sch:rule[not(@burst) or @burst = ('off','inherit')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
  
     <xsl:apply-templates select="." mode="create-template-mode">
@@ -173,7 +173,7 @@
 
   </xsl:template>
   <!-- handles bursting -->
-  <xsl:template match="sch:rule[@burst = ('copy-of','snapshot','inherit')]">
+  <xsl:template match="sch:rule[@burst = ('copy-of','snapshot')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
 
     <xsl:call-template name="schxslt:check-multiply-defined">
