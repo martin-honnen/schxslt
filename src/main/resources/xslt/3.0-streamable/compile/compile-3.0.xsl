@@ -185,11 +185,12 @@
     </xsl:call-template>
 
     <xsl:apply-templates select="." mode="create-template-mode-switch">
-      <xsl:with-param name="mode" select="$mode || '-grounded'"/>
-      <xsl:with-param name="isInherited" select="@burst = 'inherit'" />
+      <xsl:with-param name="mode" select="$mode || '-grounded'"/>      
     </xsl:apply-templates>
-    <xsl:if test="@burst != 'inherit'">
+    
       <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
+        <param name="schxslt:isBursting" select="false()" tunnel="yes"/>
+       
         <xsl:sequence select="(@xml:base, ../@xml:base)"/>
 
         <!-- Check if a context node was already matched by a rule of the current pattern. -->
@@ -198,15 +199,27 @@
         <!--<xsl:call-template name="schxslt:let-variable">
           <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
         </xsl:call-template>-->
-
-        <apply-templates select="{@burst}()" mode="{$mode}-grounded">
-          <with-param name="schxslt:isBursting" tunnel="yes" select="true()"/>
-          <with-param name="schxslt:rules" select="$schxslt:rules"/>
-          <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
-        </apply-templates>
+        <choose>
+          <when test="not($schxslt:isBursting)">
+            <variable name="burstData" select="{@burst}()" />          
+            <apply-templates select="$burstData" mode="{$mode}-grounded">          
+              <with-param name="schxslt:rules" select="$schxslt:rules"/>
+              <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
+            </apply-templates>
+            <!-- rule rules again to catch any motionless streaming rules -->
+            <apply-templates select="$burstData" mode="{$mode}">
+              <with-param name="schxslt:isBursting" tunnel="yes" select="true()"/>
+              <with-param name="schxslt:rules" select="$schxslt:rules"/>
+              <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
+            </apply-templates>
+          </when>
+          <otherwise>
+            <apply-templates mode="#current" />
+          </otherwise>
+        </choose>
       </template>
       <!-- TODO need rule for when @burst matches illegal value -->
-    </xsl:if>
+    
   </xsl:template>
 
   <xsl:template match="sch:rule" mode="create-template-mode">
@@ -257,26 +270,19 @@
 
   <xsl:template match="sch:rule" mode="create-template-mode-switch">
     <xsl:param name="mode" as="xs:string" required="yes"/>
-    <xsl:param name="isInherited" />
-        
+            
     <xsl:call-template name="schxslt:check-multiply-defined">
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
     </xsl:call-template>
 
     <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
-      <param name="schxslt:isBursting" tunnel="yes" as="xs:boolean" />
+      
       <xsl:sequence select="(@xml:base, ../@xml:base)"/>
 
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
       <param name="schxslt:streamed-context"/>
-
-      <!-- if rule is inherited, it must be called from a bursting context -->
-      <xsl:if test="$isInherited">
-        <if test="not($schxslt:isBursting)">          
-          <message terminate="yes">Inherited rule is not bursting.</message> 
-        </if>
-      </xsl:if>
+      
       <xsl:for-each select="//sch:reference">
         <variable name="{@name}" select="accumulator-after('{@context}')"/>
       </xsl:for-each>
