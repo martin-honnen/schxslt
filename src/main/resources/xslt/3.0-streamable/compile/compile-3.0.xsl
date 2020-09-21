@@ -61,7 +61,7 @@
       <mode streamable="yes" use-accumulators="#all"/>
 
       <xsl:for-each select="$schematron//sch:reference">
-        <accumulator name="{@context}" as="node()?" initial-value="()" streamable="yes">
+        <accumulator name="{@name}" as="node()?" initial-value="()" streamable="yes">
           <accumulator-rule match="{@context}" select="." phase="end" saxon:capture="yes"
             xmlns:saxon="http://saxon.sf.net/"/>
         </accumulator>
@@ -232,7 +232,7 @@
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
 
       <xsl:for-each select="//sch:reference">
-        <variable name="{@name}" select="accumulator-after('{@context}')"/>
+        <variable name="{@name}" select="accumulator-after('{@name}')"/>
       </xsl:for-each>
 
       <xsl:call-template name="schxslt:let-variable">
@@ -284,7 +284,7 @@
       <param name="schxslt:streamed-context"/>
       
       <xsl:for-each select="//sch:reference">
-        <variable name="{@name}" select="accumulator-after('{@context}')"/>
+        <variable name="{@name}" select="accumulator-after('{@name}')"/>
       </xsl:for-each>
 
       <xsl:call-template name="schxslt:let-variable">
