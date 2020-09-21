@@ -58,7 +58,7 @@
       <output indent="yes"/>
       <import-schema namespace="http://itl.nist.gov/ns/voting/1500-103/v1"
         schema-location="NIST_V0_cast_vote_records.xsd"/>
-      <mode streamable="yes" use-accumulators="position"/>
+      <mode streamable="yes" use-accumulators="#all"/>
 
       <xsl:for-each select="$schematron//sch:reference">
         <accumulator name="{@context}" as="node()?" initial-value="()" streamable="yes">
@@ -148,7 +148,7 @@
     <param name="mode">Template mode</param>
   </doc>
   <!-- handles no streaming rules (default) TODO FIX IT -->
-  <xsl:template match="sch:rule[not(@burst) or @burst = ('off','inherit')]">
+  <xsl:template match="sch:rule[not(@streaming) or @streaming = ('off','inherit')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
  
     <xsl:apply-templates select="." mode="create-template-mode">
@@ -160,7 +160,7 @@
     </xsl:call-template>
   </xsl:template>
   <!-- handles basic streaming -->
-  <xsl:template match="sch:rule[@burst = 'on']">
+  <xsl:template match="sch:rule[@streaming = 'on']">
     <xsl:param name="mode" as="xs:string" required="yes"/>
 
     <xsl:apply-templates select="." mode="create-template-mode">
@@ -173,7 +173,7 @@
 
   </xsl:template>
   <!-- handles bursting -->
-  <xsl:template match="sch:rule[@burst = ('copy-of','snapshot')]">
+  <xsl:template match="sch:rule[@streaming = ('copy-of','snapshot')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
 
     <xsl:call-template name="schxslt:check-multiply-defined">
@@ -197,7 +197,7 @@
         </xsl:call-template>-->
         <choose>
           <when test="not($schxslt:isBursting)">
-            <variable name="burstData" select="{@burst}()" />          
+            <variable name="burstData" select="{@streaming}()" />          
             <apply-templates select="$burstData" mode="{$mode}-grounded">          
               <with-param name="schxslt:rules" select="$schxslt:rules"/>
               <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
@@ -214,7 +214,7 @@
           </otherwise>
         </choose>
       </template>
-      <!-- TODO need rule for when @burst matches illegal value -->
+      <!-- TODO need rule for when @streaming matches illegal value -->
     
   </xsl:template>
 
@@ -231,9 +231,13 @@
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
 
+      <xsl:for-each select="//sch:reference">
+        <variable name="{@name}" select="accumulator-after('{@context}')"/>
+      </xsl:for-each>
+
       <xsl:call-template name="schxslt:let-variable">
         <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
-      </xsl:call-template>
+      </xsl:call-template>      
 
       <choose>
         <when
@@ -329,8 +333,8 @@
       <xsl:variable name="mode" as="xs:string" select="generate-id()"/>
       <xsl:variable name="baseUri" as="xs:anyURI" select="base-uri(.)"/>
 
-      <mode name="{$mode}" streamable="yes" use-accumulators="position"/>
-      <mode name="{$mode}-entry" streamable="yes" use-accumulators="position"/>
+      <mode name="{$mode}" streamable="yes" use-accumulators="#all"/>
+      <mode name="{$mode}-entry" streamable="yes" use-accumulators="#all"/>
 
       <template match="/" mode="{$mode}-entry">
         <xsl:sequence select="@xml:base"/>
