@@ -32,10 +32,10 @@
 
   <xsl:template name="schxslt:compile">
     <xsl:param name="schematron" as="element(sch:schema)" required="yes"/>
-    <xsl:variable name="effective-phase" select="schxslt:effective-phase($schematron, $phase)"
-      as="xs:string"/>
-    <xsl:variable name="active-patterns"
-      select="schxslt:active-patterns($schematron, $effective-phase)" as="element(sch:pattern)+"/>
+
+    <xsl:variable name="effective-phase" select="schxslt:effective-phase($schematron, $phase)" as="xs:string"/>
+    <xsl:variable name="active-patterns" select="schxslt:active-patterns($schematron, $effective-phase)" as="element(sch:pattern)+"/>
+
     <xsl:variable name="validation-stylesheet-body">
       <xsl:call-template name="schxslt:validation-stylesheet-body">
         <xsl:with-param name="patterns" as="element(sch:pattern)+" select="$active-patterns"/>
@@ -43,7 +43,6 @@
     </xsl:variable>
 
     <transform version="{schxslt:xslt-version($schematron)}">
-
       <xsl:for-each select="$schematron/sch:ns">
         <xsl:namespace name="{@prefix}" select="@uri"/>
       </xsl:for-each>
@@ -72,8 +71,7 @@
       <xsl:sequence select="$schematron/xsl:function[not(preceding-sibling::sch:pattern)]"/>
 
       <!-- See https://github.com/dmj/schxslt/issues/25 -->
-      <xsl:variable name="global-bindings" as="element(sch:let)*"
-        select="($schematron/sch:let, $schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"/>
+      <xsl:variable name="global-bindings" as="element(sch:let)*" select="($schematron/sch:let, $schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"/>
       <xsl:call-template name="schxslt:check-multiply-defined">
         <xsl:with-param name="bindings" select="$global-bindings" as="element(sch:let)*"/>
       </xsl:call-template>
@@ -83,17 +81,14 @@
       </xsl:call-template>
 
       <xsl:call-template name="schxslt:let-variable">
-        <xsl:with-param name="bindings"
-          select="($schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"
-        />
+        <xsl:with-param name="bindings" select="($schematron/sch:phase[@id eq $effective-phase]/sch:let, $active-patterns/sch:let)"/>
       </xsl:call-template>
 
       <template match="/">
         <xsl:sequence select="$schematron/sch:phase[@id eq $effective-phase]/@xml:base"/>
 
         <xsl:call-template name="schxslt:let-variable">
-          <xsl:with-param name="bindings"
-            select="$schematron/sch:phase[@id eq $effective-phase]/sch:let"/>
+          <xsl:with-param name="bindings" select="$schematron/sch:phase[@id eq $effective-phase]/sch:let"/>
         </xsl:call-template>
 
         <variable name="report" as="element(schxslt:report)">
@@ -125,7 +120,6 @@
       </template>
 
       <template match="text() | @*" mode="#all" priority="-10"/>
-
       <template match="*" mode="#all" priority="-10">
         <apply-templates mode="#current" select="@*"/>
         <apply-templates mode="#current"/>
@@ -275,8 +269,7 @@
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
     </xsl:call-template>
 
-    <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
-      
+    <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">      
       <xsl:sequence select="(@xml:base, ../@xml:base)"/>
 
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
@@ -292,8 +285,7 @@
       </xsl:call-template>
 
       <choose>
-        <when
-          test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = $schxslt:streamed-context])">
+        <when test="empty($schxslt:rules[@pattern = '{generate-id(..)}'][@context = $schxslt:streamed-context])">
           <schxslt:rule pattern="{generate-id(..)}@{{base-uri(.)}}">
             <xsl:call-template name="schxslt-api:fired-rule">
               <xsl:with-param name="rule" as="element(sch:rule)" select="."/>
@@ -365,8 +357,7 @@
             </schxslt:pattern>
           </xsl:for-each>
 
-          <apply-templates mode="{$mode}" select="."/>
-          
+          <apply-templates mode="{$mode}" select="."/>        
         </for-each>
         <!-- I don't understand the doc stuff, so putting this here for now -->
         <!-- move somewhere else so order of fired-rules makes more sense? -->
