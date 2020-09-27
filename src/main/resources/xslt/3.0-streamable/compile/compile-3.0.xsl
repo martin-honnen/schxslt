@@ -3,7 +3,8 @@
   xmlns:sch="http://purl.oclc.org/dsdl/schematron"
   xmlns:error="https://doi.org/10.5281/zenodo.1495494#error"
   xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
-  xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494" 
+  xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494"
+  xmlns:str="https://hiltonroscoe.com/ns/streamatron/v1"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
@@ -60,7 +61,7 @@
         schema-location="NIST_V0_cast_vote_records.xsd"/>
       <mode streamable="yes" use-accumulators="#all"/>
 
-      <xsl:for-each select="$schematron//sch:reference">
+      <xsl:for-each select="$schematron//str:reference">
         <accumulator name="{@name}" as="node()?" initial-value="()" streamable="yes">
           <accumulator-rule match="{@context}" select="." phase="end" saxon:capture="yes"
             xmlns:saxon="http://saxon.sf.net/"/>
@@ -143,9 +144,9 @@
     <param name="mode">Template mode</param>
   </doc>
   <!-- handles no streaming rules (default) TODO FIX IT -->
-  <xsl:template match="sch:rule[not(@streaming) or @streaming = ('on','off','inherit')]">
+  <xsl:template match="sch:rule[not(@str:streaming) or @str:streaming = ('on','off','inherit')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
-    <xsl:variable name="modeExtension" select="if(@streaming='on') then '' else '-grounded'" />
+    <xsl:variable name="modeExtension" select="if(@str:streaming='on') then '' else '-grounded'" />
     <xsl:apply-templates select="." mode="create-template-mode">
       <xsl:with-param name="mode" select="$mode || $modeExtension"/>
     </xsl:apply-templates>
@@ -155,7 +156,7 @@
     </xsl:call-template>
   </xsl:template>
   <!-- handles bursting -->
-  <xsl:template match="sch:rule[@streaming = ('copy-of','snapshot')]">
+  <xsl:template match="sch:rule[@str:streaming = ('copy-of','snapshot')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
 
     <xsl:call-template name="schxslt:check-multiply-defined">
@@ -176,7 +177,7 @@
 
         <choose>
           <when test="not($schxslt:isBursting)">
-            <variable name="burstData" select="{@streaming}()" />          
+            <variable name="burstData" select="{@str:streaming}()" />          
             <apply-templates select="$burstData" mode="{$mode}-grounded">          
               <with-param name="schxslt:rules" select="$schxslt:rules"/>
               <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
@@ -209,7 +210,7 @@
       <!-- Check if a context node was already matched by a rule of the current pattern. -->
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
 
-      <xsl:for-each select="//sch:reference">
+      <xsl:for-each select="//str:reference">
         <variable name="{@name}" select="accumulator-after('{@name}')"/>
       </xsl:for-each>
 
@@ -260,7 +261,7 @@
       <param name="schxslt:rules" as="element(schxslt:rule)*"/>
       <param name="schxslt:streamed-context"/>
       
-      <xsl:for-each select="//sch:reference">
+      <xsl:for-each select="//str:reference">
         <variable name="{@name}" select="accumulator-after('{@name}')"/>
       </xsl:for-each>
 
@@ -345,7 +346,7 @@
         </for-each>
         <!-- I don't understand the doc stuff, so putting this here for now -->
         <!-- move somewhere else so order of fired-rules makes more sense? -->
-        <xsl:for-each select="//sch:reference[@apply-rules='yes']">
+        <xsl:for-each select="//str:reference[@apply-rules='yes']">
           <apply-templates select="accumulator-after('{@name}')" mode="{$mode}-grounded" />
         </xsl:for-each>
 
