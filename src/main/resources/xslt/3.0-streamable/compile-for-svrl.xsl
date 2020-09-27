@@ -1,4 +1,4 @@
-<xsl:transform version="2.0"
+<xsl:transform version="3.0"
                xmlns="http://www.w3.org/1999/XSL/TransformAlias"
                xmlns:sch="http://purl.oclc.org/dsdl/schematron"
                xmlns:error="https://doi.org/10.5281/zenodo.1495494#error"
@@ -6,11 +6,10 @@
                xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
                xmlns:svrl="http://purl.oclc.org/dsdl/svrl"
                xmlns:xs="http://www.w3.org/2001/XMLSchema"
-               xmlns:mf="http://example.com/mf"
+               xmlns:str="https://hiltonroscoe.com/ns/streamatron/v1"
                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:import href="streaming-utilities/position-accumulator.xsl"/>
-
   <xsl:import href="compile/compile-3.0.xsl"/>
 
   <xsl:template name="schxslt-api:report">
@@ -185,7 +184,7 @@
 
   <xsl:function name="schxslt:location" as="xs:string" visibility="public" streamability="inspection">
     <xsl:param name="node" as="node()"/>
-    <xsl:sequence select="$node => mf:path()"/>
+    <xsl:sequence select="$node => str:path()"/>
   </xsl:function>
 
   <xsl:function name="schxslt:is-location-function" as="xs:boolean">

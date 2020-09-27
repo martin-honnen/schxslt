@@ -3,7 +3,8 @@
   xmlns:sch="http://purl.oclc.org/dsdl/schematron"
   xmlns:error="https://doi.org/10.5281/zenodo.1495494#error"
   xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
-  xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:import href="api-3.0.xsl"/>
