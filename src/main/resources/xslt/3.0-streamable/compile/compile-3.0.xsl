@@ -142,29 +142,16 @@
     <param name="mode">Template mode</param>
   </doc>
   <!-- handles no streaming rules (default) TODO FIX IT -->
-  <xsl:template match="sch:rule[not(@streaming) or @streaming = ('off','inherit')]">
+  <xsl:template match="sch:rule[not(@streaming) or @streaming = ('on','off','inherit')]">
     <xsl:param name="mode" as="xs:string" required="yes"/>
- 
+    <xsl:variable name="modeExtension" select="if(@streaming='on') then '' else '-grounded'" />
     <xsl:apply-templates select="." mode="create-template-mode">
-      <xsl:with-param name="mode" select="$mode || '-grounded'"/>
+      <xsl:with-param name="mode" select="$mode || $modeExtension"/>
     </xsl:apply-templates>
 
     <xsl:call-template name="schxslt:check-multiply-defined">
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
     </xsl:call-template>
-  </xsl:template>
-  <!-- handles basic streaming -->
-  <xsl:template match="sch:rule[@streaming = 'on']">
-    <xsl:param name="mode" as="xs:string" required="yes"/>
-
-    <xsl:apply-templates select="." mode="create-template-mode">
-      <xsl:with-param name="mode" select="$mode"/>
-    </xsl:apply-templates>    
-
-    <xsl:call-template name="schxslt:check-multiply-defined">
-      <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
-    </xsl:call-template>
-
   </xsl:template>
   <!-- handles bursting -->
   <xsl:template match="sch:rule[@streaming = ('copy-of','snapshot')]">
@@ -186,9 +173,6 @@
         <!-- Check if a context node was already matched by a rule of the current pattern. -->
         <param name="schxslt:rules" as="element(schxslt:rule)*"/>
 
-        <!--<xsl:call-template name="schxslt:let-variable">
-          <xsl:with-param name="bindings" as="element(sch:let)*" select="sch:let"/>
-        </xsl:call-template>-->
         <choose>
           <when test="not($schxslt:isBursting)">
             <variable name="burstData" select="{@streaming}()" />          
@@ -207,8 +191,7 @@
             <apply-templates mode="#current" />
           </otherwise>
         </choose>
-      </template>
-      <!-- TODO need rule for when @streaming matches illegal value -->
+      </template>      
     
   </xsl:template>
 
