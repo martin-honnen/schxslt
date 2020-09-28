@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:map="http://www.w3.org/2005/xpath-functions/map"
-    xmlns:mf="http://example.com/mf"
+    xmlns:str="https://hiltonroscoe.com/ns/streamatron/v1"
     exclude-result-prefixes="#all"
     expand-text="yes"
     version="3.0">
@@ -15,7 +15,7 @@
         <xsl:variable name="pos" as="xs:integer">
             <xsl:number/>
         </xsl:variable>
-        <xsl:assert test="path() eq mf:path(.)">{path()} ne {mf:path(.)}</xsl:assert>
+        <xsl:assert test="path() eq str:path(.)">{path()} ne {str:path(.)}</xsl:assert>
         <xsl:next-match/>
     </xsl:template>
     
