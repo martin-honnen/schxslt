@@ -162,9 +162,9 @@
     <xsl:call-template name="schxslt:check-multiply-defined">
       <xsl:with-param name="bindings" select="sch:let" as="element(sch:let)*"/>
     </xsl:call-template>
-
+    <xsl:variable name="groundedMode" select="$mode || '-grounded' || generate-id(.)"/>
     <xsl:apply-templates select="." mode="create-template-mode-switch">
-      <xsl:with-param name="mode" select="$mode || '-grounded'"/>      
+      <xsl:with-param name="mode" select="$groundedMode"/>      
     </xsl:apply-templates>
     
       <template match="{@context}" priority="{count(following::sch:rule)}" mode="{$mode}">
@@ -178,7 +178,7 @@
         <choose>
           <when test="not($schxslt:isBursting)">
             <variable name="burstData" select="{@str:streaming}()" />          
-            <apply-templates select="$burstData" mode="{$mode}-grounded">          
+            <apply-templates select="$burstData" mode="{$groundedMode}">          
               <with-param name="schxslt:rules" select="$schxslt:rules"/>
               <with-param name="schxslt:streamed-context" select="'{{generate-id()}}'"/>
             </apply-templates>
