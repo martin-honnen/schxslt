@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:map="http://www.w3.org/2005/xpath-functions/map"
-    xmlns:mf="http://example.com/mf"
+    xmlns:str="https://hiltonroscoe.com/ns/streamatron/v1"
     exclude-result-prefixes="#all"
     expand-text="yes"
     version="3.0">
@@ -12,7 +12,7 @@
     <xsl:mode on-no-match="shallow-copy" streamable="yes" use-accumulators="position"/>
     
     <xsl:template match="node()">
-        <xsl:comment>{mf:node-type(.)}: position: {mf:position(.)}; path: {mf:path(.)}</xsl:comment>
+        <xsl:comment>{str:node-type(.)}: position: {str:position(.)}; path: {str:path(.)}</xsl:comment>
         <xsl:next-match/>
     </xsl:template>
     

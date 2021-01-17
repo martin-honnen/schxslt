@@ -2,11 +2,11 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:map="http://www.w3.org/2005/xpath-functions/map"
-    xmlns:mf="http://example.com/mf"
+    xmlns:str="https://hiltonroscoe.com/ns/streamatron/v1"
     exclude-result-prefixes="#all"
     version="3.0">
     
-    <xsl:function name="mf:path" as="xs:string" streamability="inspection" visibility="public">
+    <xsl:function name="str:path" as="xs:string" streamability="inspection" visibility="public">
         <xsl:param name="node" as="node()"/>
         <xsl:sequence
             select="if ($node instance of document-node())
@@ -14,12 +14,12 @@
                     else 
                     $node/ancestor-or-self::node()
                     !(
-                       mf:step(.) || 
-                       mf:positional-predicate(.)
+                       str:step(.) || 
+                       str:positional-predicate(.)
                      ) => string-join('/')"/>
     </xsl:function>
 
-  <xsl:function name="mf:step" as="xs:string?" streamability="inspection" visibility="public">
+  <xsl:function name="str:step" as="xs:string?" streamability="inspection" visibility="public">
     <xsl:param name="node" as="node()"/>
     <xsl:sequence select="if ($node instance of element())
                           then $node!('Q{' || namespace-uri-from-QName(node-name()) || '}' || local-name())
@@ -29,9 +29,9 @@
                                 else $node!('@' || 'Q{' || namespace-uri-from-QName(node-name()) || '}' || local-name())
                                )
                           else if ($node instance of text())
-                          then mf:node-type($node)
+                          then str:node-type($node)
                           else if ($node instance of comment())
-                          then mf:node-type($node)
+                          then str:node-type($node)
                           else if ($node instance of processing-instruction())
                           then 'processing-instruction(' || node-name($node) || ')'
                           else if ($node instance of document-node())
@@ -39,17 +39,17 @@
                           else error(QName('http://example.com/mf', 'type-error'), 'Unknown node type')"/>
   </xsl:function>
 
-  <xsl:function name="mf:positional-predicate" as="xs:string?" streamability="inspection" visibility="public">
+  <xsl:function name="str:positional-predicate" as="xs:string?" streamability="inspection" visibility="public">
     <xsl:param name="node" as="node()"/>
     <xsl:sequence select="if ($node instance of document-node() or $node instance of attribute())
                           then ''
-                          else $node ! ('[' || mf:position(.) || ']')"/>
+                          else $node ! ('[' || str:position(.) || ']')"/>
   </xsl:function>
 
-    <xsl:variable name="mf:empty-child-nodes-map" as="map(xs:string, map(xs:QName, xs:integer)?)"
+    <xsl:variable name="str:empty-child-nodes-map" as="map(xs:string, map(xs:QName, xs:integer)?)"
                 select="map { 'element()' : map {}, 'text()' : map{ QName('', 'text') : 0 }, 'comment()' : map{ QName('', 'comment') : 0 }, 'processing-instruction()' : map{} }"/>
     
-    <xsl:function name="mf:position" as="xs:integer" streamability="inspection" visibility="public">
+    <xsl:function name="str:position" as="xs:integer" streamability="inspection" visibility="public">
         <xsl:param name="node" as="node()"/>
         <xsl:sequence select="if ($node instance of element())
                               then $node!accumulator-before('position')[last() - 1]('element()')(node-name())
@@ -63,15 +63,15 @@
     </xsl:function>
     
     <xsl:accumulator name="position" as="map(xs:string, map(xs:QName, xs:integer))*" initial-value="map{}" streamable="yes">
-        <xsl:accumulator-rule match="document-node()" select="$mf:empty-child-nodes-map"/>
+        <xsl:accumulator-rule match="document-node()" select="$str:empty-child-nodes-map"/>
         <xsl:accumulator-rule match="*"
           select="let $cm := $value[last()],
                       $cem := $cm('element()'),
                       $node-name := node-name()
                   return
                       if (map:contains($cem, $node-name))
-                      then ($value[position() lt last()], map:put($cm, 'element()', map:put($cem, $node-name, $cem($node-name) + 1)), $mf:empty-child-nodes-map)
-                      else ($value[position() lt last()], map:put($cm, 'element()', map:put($cem, $node-name, 1)), $mf:empty-child-nodes-map)"/>
+                      then ($value[position() lt last()], map:put($cm, 'element()', map:put($cem, $node-name, $cem($node-name) + 1)), $str:empty-child-nodes-map)
+                      else ($value[position() lt last()], map:put($cm, 'element()', map:put($cem, $node-name, 1)), $str:empty-child-nodes-map)"/>
         <xsl:accumulator-rule match="text()"
           select="let $cm := $value[last()],
                       $ctm := $cm('text()'),
@@ -100,7 +100,7 @@
           select="$value[position() lt last()]"/>
     </xsl:accumulator>
 
-    <xsl:function name="mf:node-type" as="xs:string" streamability="inspection" visibility="public">
+    <xsl:function name="str:node-type" as="xs:string" streamability="inspection" visibility="public">
       <xsl:param name="node" as="node()"/>
       <xsl:sequence
         select="if ($node instance of document-node())
